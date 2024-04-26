@@ -282,24 +282,6 @@ def create_ui():
                     if category == "prompt":
                         toprow.create_inline_toprow_prompts()
 
-                    elif category == "dimensions":
-                        with FormRow():
-                            with gr.Column(elem_id="txt2img_column_size", scale=4):
-                                width = gr.Slider(minimum=64, maximum=2048, step=8, label="Width", value=512, elem_id="txt2img_width")
-                                height = gr.Slider(minimum=64, maximum=2048, step=8, label="Height", value=512, elem_id="txt2img_height")
-
-                            with gr.Column(elem_id="txt2img_dimensions_row", scale=1, elem_classes="dimensions-tools"):
-                                res_switch_btn = ToolButton(value=switch_values_symbol, elem_id="txt2img_res_switch_btn", tooltip="Switch width/height")
-
-                            if opts.dimensions_and_batch_together:
-                                with gr.Column(elem_id="txt2img_column_batch"):
-                                    batch_count = gr.Slider(minimum=1, step=1, label='Batch count', value=1, elem_id="txt2img_batch_count")
-                                    batch_size = gr.Slider(minimum=1, maximum=8, step=1, label='Batch size', value=1, elem_id="txt2img_batch_size")
-
-                    elif category == "cfg":
-                        with gr.Row():
-                            cfg_scale = gr.Slider(minimum=1.0, maximum=30.0, step=0.5, label='CFG Scale', value=7.0, elem_id="txt2img_cfg_scale")
-
                     elif category == "checkboxes":
                         with FormRow(elem_classes="checkboxes-row", variant="compact"):
                             pass
@@ -338,12 +320,6 @@ def create_ui():
 
                             scripts.scripts_txt2img.setup_ui_for_section(category)
 
-                    elif category == "batch":
-                        if not opts.dimensions_and_batch_together:
-                            with FormRow(elem_id="txt2img_column_batch"):
-                                batch_count = gr.Slider(minimum=1, step=1, label='Batch count', value=1, elem_id="txt2img_batch_count")
-                                batch_size = gr.Slider(minimum=1, maximum=8, step=1, label='Batch size', value=1, elem_id="txt2img_batch_size")
-
                     elif category == "override_settings":
                         with FormRow(elem_id="txt2img_override_settings_row") as row:
                             override_settings = create_override_settings_dropdown('txt2img', row)
@@ -355,7 +331,7 @@ def create_ui():
                     if category not in {"accordions"}:
                         scripts.scripts_txt2img.setup_ui_for_section(category)
 
-            hr_resolution_preview_inputs = [enable_hr, width, height, hr_scale, hr_resize_x, hr_resize_y]
+            hr_resolution_preview_inputs = [enable_hr, hr_scale, hr_resize_x, hr_resize_y]
 
             for component in hr_resolution_preview_inputs:
                 event = component.release if isinstance(component, gr.Slider) else component.change
@@ -378,14 +354,9 @@ def create_ui():
 
             txt2img_inputs = [
                 dummy_component,
-                toprow.prompt,
-                toprow.negative_prompt,
-                toprow.ui_styles.dropdown,
-                batch_count,
-                batch_size,
-                cfg_scale,
-                height,
-                width,
+                toprow.countries,
+                toprow.cities,
+                toprow.colors,
                 enable_hr,
                 denoising_strength,
                 hr_scale,
@@ -416,7 +387,6 @@ def create_ui():
                 show_progress=False,
             )
 
-            toprow.prompt.submit(**txt2img_args)
             toprow.submit.click(**txt2img_args)
 
             output_panel.button_upscale.click(
@@ -426,8 +396,6 @@ def create_ui():
                 outputs=txt2img_outputs,
                 show_progress=False,
             )
-
-            res_switch_btn.click(fn=None, _js="function(){switchWidthHeight('txt2img')}", inputs=None, outputs=None, show_progress=False)
 
             toprow.restore_progress_button.click(
                 fn=progress.restore_progress,
@@ -443,13 +411,6 @@ def create_ui():
             )
 
             txt2img_paste_fields = [
-                PasteField(toprow.prompt, "Prompt", api="prompt"),
-                PasteField(toprow.negative_prompt, "Negative prompt", api="negative_prompt"),
-                PasteField(cfg_scale, "CFG scale", api="cfg_scale"),
-                PasteField(width, "Size-1", api="width"),
-                PasteField(height, "Size-2", api="height"),
-                PasteField(batch_size, "Batch size", api="batch_size"),
-                PasteField(toprow.ui_styles.dropdown, lambda d: d["Styles array"] if isinstance(d.get("Styles array"), list) else gr.update(), api="styles"),
                 PasteField(denoising_strength, "Denoising strength", api="denoising_strength"),
                 PasteField(enable_hr, lambda d: "Denoising strength" in d and ("Hires upscale" in d or "Hires upscaler" in d or "Hires resize-1" in d), api="enable_hr"),
                 PasteField(hr_scale, "Hires upscale", api="hr_scale"),
@@ -467,27 +428,14 @@ def create_ui():
                 *scripts.scripts_txt2img.infotext_fields
             ]
             parameters_copypaste.add_paste_fields("txt2img", None, txt2img_paste_fields, override_settings)
-            parameters_copypaste.register_paste_params_button(parameters_copypaste.ParamBinding(
-                paste_button=toprow.paste, tabname="txt2img", source_text_component=toprow.prompt, source_image_component=None,
-            ))
 
             steps = scripts.scripts_txt2img.script('Sampler').steps
 
             txt2img_preview_params = [
-                toprow.prompt,
-                toprow.negative_prompt,
                 steps,
                 scripts.scripts_txt2img.script('Sampler').sampler_name,
-                cfg_scale,
                 scripts.scripts_txt2img.script('Seed').seed,
-                width,
-                height,
             ]
-
-            toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_token_counter), inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
-            toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
-            toprow.token_button.click(fn=wrap_queued_call(update_token_counter), inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
-            toprow.negative_token_button.click(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
 
         extra_networks_ui = ui_extra_networks.create_ui(txt2img_interface, [txt2img_generation_tab], 'txt2img')
         ui_extra_networks.setup_ui(extra_networks_ui, output_panel.gallery)
@@ -726,9 +674,9 @@ def create_ui():
                 inputs=[
                     dummy_component,
                     dummy_component,
-                    toprow.prompt,
-                    toprow.negative_prompt,
-                    toprow.ui_styles.dropdown,
+                    # toprow.prompt,
+                    # toprow.negative_prompt,
+                    # toprow.ui_styles.dropdown,
                     init_img,
                     sketch,
                     init_img_with_mask,
@@ -781,10 +729,10 @@ def create_ui():
                     inpaint_color_sketch,
                     init_img_inpaint,
                 ],
-                outputs=[toprow.prompt, dummy_component],
+                outputs=[dummy_component, dummy_component],
             )
 
-            toprow.prompt.submit(**img2img_args)
+            # toprow.prompt.submit(**img2img_args)
             toprow.submit.click(**img2img_args)
 
             res_switch_btn.click(fn=None, _js="function(){switchWidthHeight('img2img')}", inputs=None, outputs=None, show_progress=False)
@@ -810,7 +758,7 @@ def create_ui():
                 show_progress=False,
             )
 
-            toprow.button_interrogate.click(
+            toprow.button_interrogate.click(  # TODO
                 fn=lambda *args: process_interrogate(interrogate, *args),
                 **interrogate_args,
             )
@@ -822,20 +770,20 @@ def create_ui():
 
             steps = scripts.scripts_img2img.script('Sampler').steps
 
-            toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_token_counter), inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
-            toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
-            toprow.token_button.click(fn=update_token_counter, inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
-            toprow.negative_token_button.click(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
+            # toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_token_counter), inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
+            # toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
+            # toprow.token_button.click(fn=update_token_counter, inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
+            # toprow.negative_token_button.click(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
 
             img2img_paste_fields = [
-                (toprow.prompt, "Prompt"),
-                (toprow.negative_prompt, "Negative prompt"),
+                # (toprow.prompt, "Prompt"),
+                # (toprow.negative_prompt, "Negative prompt"),
                 (cfg_scale, "CFG scale"),
                 (image_cfg_scale, "Image CFG scale"),
                 (width, "Size-1"),
                 (height, "Size-2"),
                 (batch_size, "Batch size"),
-                (toprow.ui_styles.dropdown, lambda d: d["Styles array"] if isinstance(d.get("Styles array"), list) else gr.update()),
+                # (toprow.ui_styles.dropdown, lambda d: d["Styles array"] if isinstance(d.get("Styles array"), list) else gr.update()),
                 (denoising_strength, "Denoising strength"),
                 (mask_blur, "Mask blur"),
                 (inpainting_mask_invert, 'Mask mode'),
@@ -846,9 +794,9 @@ def create_ui():
             ]
             parameters_copypaste.add_paste_fields("img2img", init_img, img2img_paste_fields, override_settings)
             parameters_copypaste.add_paste_fields("inpaint", init_img_with_mask, img2img_paste_fields, override_settings)
-            parameters_copypaste.register_paste_params_button(parameters_copypaste.ParamBinding(
-                paste_button=toprow.paste, tabname="img2img", source_text_component=toprow.prompt, source_image_component=None,
-            ))
+            # parameters_copypaste.register_paste_params_button(parameters_copypaste.ParamBinding(
+            #     paste_button=toprow.paste, tabname="img2img", source_text_component=toprow.prompt, source_image_component=None,
+            # ))
 
         extra_networks_ui_img2img = ui_extra_networks.create_ui(img2img_interface, [img2img_generation_tab], 'img2img')
         ui_extra_networks.setup_ui(extra_networks_ui_img2img, output_panel.gallery)

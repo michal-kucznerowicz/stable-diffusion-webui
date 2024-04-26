@@ -6,6 +6,7 @@ styles_edit_symbol = '\U0001f58c\uFE0F'  # 🖌️
 styles_materialize_symbol = '\U0001f4cb'  # 📋
 styles_copy_symbol = '\U0001f4dd'  # 📝
 
+# TODO: whole file
 
 def select_style(name):
     style = shared.prompt_styles.styles.get(name)

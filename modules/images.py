@@ -808,7 +808,7 @@ Steps: {json_info["steps"]}, Sampler: {sampler}, CFG scale: {json_info["scale"]}
     return geninfo, items
 
 
-def image_data(data):
+def image_data(data):  # TODO
     import gradio as gr
 
     try:

@@ -1,17 +1,19 @@
 import gradio as gr
 
 from modules import shared, ui_prompt_styles
-import modules.images
-
 from modules.ui_components import ToolButton
+from modules.ui_prompt_tag import PromptTag
 
 
 class Toprow:
     """Creates a top row UI with prompts, generate button, styles, extra little buttons for things, and enables some functionality related to their operation"""
 
-    prompt = None
-    prompt_img = None
-    negative_prompt = None
+    countries = None
+    countries_prompt_tag = PromptTag(label="Country", choices=["USA", "Japan", "Poland"])
+    cities = None
+    cities_prompt_tag = PromptTag(label="City", choices=["New York", "Tokyo", "Warsaw"])
+    colors = None
+    colors_prompt_tag = PromptTag(label="Color", choices=["Red", "Green", "Blue"])
 
     button_interrogate = None
     button_deepbooru = None
@@ -57,8 +59,6 @@ class Toprow:
 
             self.create_tools_row()
 
-            self.create_styles_ui()
-
     def create_inline_toprow_prompts(self):
         if not self.is_compact:
             return
@@ -68,8 +68,6 @@ class Toprow:
         with gr.Row(elem_classes=["toprow-compact-stylerow"]):
             with gr.Column(elem_classes=["toprow-compact-tools"]):
                 self.create_tools_row()
-            with gr.Column():
-                self.create_styles_ui()
 
     def create_inline_toprow_image(self):
         if not self.is_compact:
@@ -79,19 +77,20 @@ class Toprow:
 
     def create_prompts(self):
         with gr.Column(elem_id=f"{self.id_part}_prompt_container", elem_classes=["prompt-container-compact"] if self.is_compact else [], scale=6):
-            with gr.Row(elem_id=f"{self.id_part}_prompt_row", elem_classes=["prompt-row"]):
-                self.prompt = gr.Textbox(label="Prompt", elem_id=f"{self.id_part}_prompt", show_label=False, lines=3, placeholder="Prompt\n(Press Ctrl+Enter to generate, Alt+Enter to skip, Esc to interrupt)", elem_classes=["prompt"])
-                self.prompt_img = gr.File(label="", elem_id=f"{self.id_part}_prompt_image", file_count="single", type="binary", visible=False)
-
-            with gr.Row(elem_id=f"{self.id_part}_neg_prompt_row", elem_classes=["prompt-row"]):
-                self.negative_prompt = gr.Textbox(label="Negative prompt", elem_id=f"{self.id_part}_neg_prompt", show_label=False, lines=3, placeholder="Negative prompt\n(Press Ctrl+Enter to generate, Alt+Enter to skip, Esc to interrupt)", elem_classes=["prompt"])
-
-        self.prompt_img.change(
-            fn=modules.images.image_data,
-            inputs=[self.prompt_img],
-            outputs=[self.prompt, self.prompt_img],
-            show_progress=False,
-        )
+            with gr.Row():
+                with gr.Column():
+                    self.countries = gr.CheckboxGroup(
+                        label=self.countries_prompt_tag.label,
+                        choices=self.countries_prompt_tag.choices,
+                    )
+                    self.cities = gr.CheckboxGroup(
+                        label=self.cities_prompt_tag.label,
+                        choices=self.cities_prompt_tag.choices,
+                    )
+                    self.colors = gr.CheckboxGroup(
+                        label=self.colors_prompt_tag.label,
+                        choices=self.colors_prompt_tag.choices,
+                    )
 
     def create_submit_box(self):
         with gr.Row(elem_id=f"{self.id_part}_generate_box", elem_classes=["generate-box"] + (["generate-box-compact"] if self.is_compact else []), render=not self.is_compact) as submit_box:
@@ -131,14 +130,3 @@ class Toprow:
             self.token_button = gr.Button(visible=False, elem_id=f"{self.id_part}_token_button")
             self.negative_token_counter = gr.HTML(value="<span>0/75</span>", elem_id=f"{self.id_part}_negative_token_counter", elem_classes=["token-counter"], visible=False)
             self.negative_token_button = gr.Button(visible=False, elem_id=f"{self.id_part}_negative_token_button")
-
-            self.clear_prompt_button.click(
-                fn=lambda *x: x,
-                _js="confirm_clear_prompt",
-                inputs=[self.prompt, self.negative_prompt],
-                outputs=[self.prompt, self.negative_prompt],
-            )
-
-    def create_styles_ui(self):
-        self.ui_styles = ui_prompt_styles.UiPromptStyles(self.id_part, self.prompt, self.negative_prompt)
-        self.ui_styles.setup_apply_button(self.apply_styles)
