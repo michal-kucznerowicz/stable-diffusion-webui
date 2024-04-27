@@ -1,6 +1,6 @@
 import gradio as gr
 
-from modules import shared, ui_prompt_styles
+from modules import shared
 from modules.ui_components import ToolButton
 from modules.ui_prompt_tag import PromptTag
 
@@ -23,17 +23,7 @@ class Toprow:
     skip = None
     submit = None
 
-    paste = None
-    clear_prompt_button = None
-    apply_styles = None
     restore_progress_button = None
-
-    token_counter = None
-    token_button = None
-    negative_token_counter = None
-    negative_token_button = None
-
-    ui_styles = None
 
     submit_box = None
 
@@ -114,19 +104,10 @@ class Toprow:
 
     def create_tools_row(self):
         with gr.Row(elem_id=f"{self.id_part}_tools"):
-            from modules.ui import paste_symbol, clear_prompt_symbol, restore_progress_symbol
-
-            self.paste = ToolButton(value=paste_symbol, elem_id="paste", tooltip="Read generation parameters from prompt or last generation if prompt is empty into user interface.")
-            self.clear_prompt_button = ToolButton(value=clear_prompt_symbol, elem_id=f"{self.id_part}_clear_prompt", tooltip="Clear prompt")
-            self.apply_styles = ToolButton(value=ui_prompt_styles.styles_materialize_symbol, elem_id=f"{self.id_part}_style_apply", tooltip="Apply all selected styles to prompts.")
+            from modules.ui import restore_progress_symbol
 
             if self.is_img2img:
                 self.button_interrogate = ToolButton('📎', tooltip='Interrogate CLIP - use CLIP neural network to create a text describing the image, and put it into the prompt field', elem_id="interrogate")
                 self.button_deepbooru = ToolButton('📦', tooltip='Interrogate DeepBooru - use DeepBooru neural network to create a text describing the image, and put it into the prompt field', elem_id="deepbooru")
 
             self.restore_progress_button = ToolButton(value=restore_progress_symbol, elem_id=f"{self.id_part}_restore_progress", visible=False, tooltip="Restore progress")
-
-            self.token_counter = gr.HTML(value="<span>0/75</span>", elem_id=f"{self.id_part}_token_counter", elem_classes=["token-counter"], visible=False)
-            self.token_button = gr.Button(visible=False, elem_id=f"{self.id_part}_token_button")
-            self.negative_token_counter = gr.HTML(value="<span>0/75</span>", elem_id=f"{self.id_part}_negative_token_counter", elem_classes=["token-counter"], visible=False)
-            self.negative_token_button = gr.Button(visible=False, elem_id=f"{self.id_part}_negative_token_button")

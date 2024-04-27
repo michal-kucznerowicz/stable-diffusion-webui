@@ -1,7 +1,6 @@
 import datetime
 import mimetypes
 import os
-import sys
 import warnings
 from contextlib import ExitStack
 from functools import reduce
@@ -74,8 +73,8 @@ save_style_symbol = '\U0001f4be'  # 💾
 apply_style_symbol = '\U0001f4cb'  # 📋
 clear_prompt_symbol = '\U0001f5d1\ufe0f'  # 🗑️
 extra_networks_symbol = '\U0001F3B4'  # 🎴
-switch_values_symbol = '\U000021C5' # ⇅
-restore_progress_symbol = '\U0001F300' # 🌀
+switch_values_symbol = '\U000021C5'  # ⇅
+restore_progress_symbol = '\U0001F300'  # 🌀
 detect_image_size_symbol = '\U0001F4D0'  # 📐
 
 
@@ -1047,10 +1046,6 @@ def create_ui():
         if os.path.exists(os.path.join(script_path, "notification.mp3")) and shared.opts.notification_audio:
             gr.Audio(interactive=False, value=os.path.join(script_path, "notification.mp3"), elem_id="audio_notification", visible=False)
 
-        footer = shared.html("footer.html")
-        footer = footer.format(versions=versions_html(), api_docs="/docs" if shared.cmd_opts.api else "https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API")
-        gr.HTML(footer, elem_id="footer")
-
         settings.add_functionality(demo)
 
         update_image_cfg_scale_visibility = lambda: gr.update(visible=shared.sd_model and shared.sd_model.cond_stage_key == "edit")
@@ -1064,35 +1059,6 @@ def create_ui():
     demo.ui_loadsave = loadsave
 
     return demo
-
-
-def versions_html():
-    import torch
-    import launch
-
-    python_version = ".".join([str(x) for x in sys.version_info[0:3]])
-    commit = launch.commit_hash()
-    tag = launch.git_tag()
-
-    if shared.xformers_available:
-        import xformers
-        xformers_version = xformers.__version__
-    else:
-        xformers_version = "N/A"
-
-    return f"""
-version: <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/{commit}">{tag}</a>
-&#x2000;•&#x2000;
-python: <span title="{sys.version}">{python_version}</span>
-&#x2000;•&#x2000;
-torch: {getattr(torch, '__long_version__',torch.__version__)}
-&#x2000;•&#x2000;
-xformers: {xformers_version}
-&#x2000;•&#x2000;
-gradio: {gr.__version__}
-&#x2000;•&#x2000;
-checkpoint: <a id="sd_checkpoint_hash">N/A</a>
-"""
 
 
 def setup_ui_api(app):
