@@ -9,11 +9,37 @@ class Toprow:
     """Creates a top row UI with prompts, generate button, styles, extra little buttons for things, and enables some functionality related to their operation"""
 
     base = None
-    base_prompt_tag = PromptTag(label="Base", choices=["woman", "man"])
+    __base_prompt_tag = PromptTag(label="Base", choices=["woman", "man"])
     number_of_people = None
-    number_of_people_prompt_tag = PromptTag(label="Number of people", choices=["one", "two", "several"])
+    __number_of_people_prompt_tag = PromptTag(label="Number of people", choices=["one", "two", "several"])
     body = None
-    body_prompt_tag = PromptTag(label="Body", choices=["skinny", "slim", "chubby", "fat"])
+    __body_prompt_tag = PromptTag(label="Body", choices=["skinny", "slim", "chubby", "fat"])
+    age = None
+    __age_prompt_tag = PromptTag(label="Age", choices=["20", "30", "40", "50", "60", "70", "80"])
+    face = None
+    __face_prompt_tag = PromptTag(label="Face", choices=["happy", "sad"])
+    hair_color = None
+    __hair_color_prompt_tag = PromptTag(label="Hair color", choices=["blonde", "brunette", "redhead", "black hair"])
+    hair_style = None
+    __hair_style_prompt_tag = PromptTag(label="Hair style", choices=["bobcut", "bun hair", "ponytail", "braided"])
+    ethnicity = None
+    __ethnicity_prompt_tag = PromptTag(label="Ethnicity", choices=["latina", "slavic", "asian"])
+    style = None
+    __style_prompt_tag = PromptTag(label="Style", choices=["painting", "vintage", "black and white"])
+    setting = None
+    __setting_prompt_tag = PromptTag(label="Setting", choices=["cafe", "car", "office"])
+    view = None
+    __view_prompt_tag = PromptTag(label="View", choices=["front", "side", "back"])
+    action = None
+    __action_prompt_tag = PromptTag(label="Action", choices=["standing", "sitting", "lying down"])
+    clothing = None
+    __clothing_prompt_tag = PromptTag(label="Clothing", choices=["police", "nurse", "waitress"])
+    clothing_modifiers = None
+    __clothing_modifiers_prompt_tag = PromptTag(label="Clothing modifiers", choices=["cleavage", "transparent"])
+    accessories = None
+    __accessories_prompt_tag = PromptTag(label="Accessories", choices=["gold jewelry", "silver jewelry"])
+    effects = None
+    __effects_prompt_tag = PromptTag(label="Effects", choices=["bright lighting", "dark lighting"])
 
     button_interrogate = None
     button_deepbooru = None
@@ -70,16 +96,68 @@ class Toprow:
             with gr.Row():
                 with gr.Column():
                     self.base = gr.CheckboxGroup(
-                        label=self.base_prompt_tag.label,
-                        choices=self.base_prompt_tag.choices,
+                        label=self.__base_prompt_tag.label,
+                        choices=self.__base_prompt_tag.choices,
                     )
                     self.number_of_people = gr.CheckboxGroup(
-                        label=self.number_of_people_prompt_tag.label,
-                        choices=self.number_of_people_prompt_tag.choices,
+                        label=self.__number_of_people_prompt_tag.label,
+                        choices=self.__number_of_people_prompt_tag.choices,
                     )
                     self.body = gr.CheckboxGroup(
-                        label=self.body_prompt_tag.label,
-                        choices=self.body_prompt_tag.choices,
+                        label=self.__body_prompt_tag.label,
+                        choices=self.__body_prompt_tag.choices,
+                    )
+                    self.age = gr.CheckboxGroup(
+                        label=self.__age_prompt_tag.label,
+                        choices=self.__age_prompt_tag.choices,
+                    )
+                    self.face = gr.CheckboxGroup(
+                        label=self.__face_prompt_tag.label,
+                        choices=self.__face_prompt_tag.choices,
+                    )
+                    self.hair_color = gr.CheckboxGroup(
+                        label=self.__hair_color_prompt_tag.label,
+                        choices=self.__hair_color_prompt_tag.choices,
+                    )
+                    self.hair_style = gr.CheckboxGroup(
+                        label=self.__hair_style_prompt_tag.label,
+                        choices=self.__hair_style_prompt_tag.choices,
+                    )
+                    self.ethnicity = gr.CheckboxGroup(
+                        label=self.__ethnicity_prompt_tag.label,
+                        choices=self.__ethnicity_prompt_tag.choices,
+                    )
+                    self.style = gr.CheckboxGroup(
+                        label=self.__style_prompt_tag.label,
+                        choices=self.__style_prompt_tag.choices,
+                    )
+                    self.setting = gr.CheckboxGroup(
+                        label=self.__setting_prompt_tag.label,
+                        choices=self.__setting_prompt_tag.choices,
+                    )
+                    self.view = gr.CheckboxGroup(
+                        label=self.__view_prompt_tag.label,
+                        choices=self.__view_prompt_tag.choices,
+                    )
+                    self.action = gr.CheckboxGroup(
+                        label=self.__action_prompt_tag.label,
+                        choices=self.__action_prompt_tag.choices,
+                    )
+                    self.clothing = gr.CheckboxGroup(
+                        label=self.__clothing_prompt_tag.label,
+                        choices=self.__clothing_prompt_tag.choices,
+                    )
+                    self.clothing_modifiers = gr.CheckboxGroup(
+                        label=self.__clothing_modifiers_prompt_tag.label,
+                        choices=self.__clothing_modifiers_prompt_tag.choices,
+                    )
+                    self.accessories = gr.CheckboxGroup(
+                        label=self.__accessories_prompt_tag.label,
+                        choices=self.__accessories_prompt_tag.choices,
+                    )
+                    self.effects = gr.CheckboxGroup(
+                        label=self.__effects_prompt_tag.label,
+                        choices=self.__effects_prompt_tag.choices,
                     )
 
     def create_submit_box(self):

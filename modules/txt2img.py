@@ -18,6 +18,19 @@ def txt2img_create_processing(
         tag_1,
         tag_2,
         tag_3,
+        tag_4,
+        tag_5,
+        tag_6,
+        tag_7,
+        tag_8,
+        tag_9,
+        tag_10,
+        tag_11,
+        tag_12,
+        tag_13,
+        tag_14,
+        tag_15,
+        tag_16,
         enable_hr: bool,
         override_settings_texts,
         *args,
@@ -29,12 +42,25 @@ def txt2img_create_processing(
         enable_hr = True
 
     prompt = (
-            tag_to_prompt(tag_1) + ", " +
-            tag_to_prompt(tag_2) + ", " +
-            tag_to_prompt(tag_3)
+            tag_to_prompt(tag_1) + " " +
+            tag_to_prompt(tag_2) + " " +
+            tag_to_prompt(tag_3) + " " +
+            tag_to_prompt(tag_4) + " " +
+            tag_to_prompt(tag_5) + " " +
+            tag_to_prompt(tag_6) + " " +
+            tag_to_prompt(tag_7) + " " +
+            tag_to_prompt(tag_8) + " " +
+            tag_to_prompt(tag_9) + " " +
+            tag_to_prompt(tag_10) + " " +
+            tag_to_prompt(tag_11) + " " +
+            tag_to_prompt(tag_12) + " " +
+            tag_to_prompt(tag_13) + " " +
+            tag_to_prompt(tag_14) + " " +
+            tag_to_prompt(tag_15) + " " +
+            tag_to_prompt(tag_16)
     )
     prompt = re.sub(' +', ' ', prompt)
-    print("Prompt: " + prompt)
+    print("Prompt: " + prompt)  # TODO
 
     p = processing.StableDiffusionProcessingTxt2Img(
         sd_model=shared.sd_model,
