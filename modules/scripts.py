@@ -705,7 +705,7 @@ class ScriptRunner:
 
         self.setup_ui_for_section(None)
 
-        dropdown = gr.Dropdown(label="Script", elem_id="script_list", choices=["None"] + self.titles, value="None", type="index")
+        dropdown = gr.Dropdown(label="Script", elem_id="script_list", choices=["None"] + self.titles, value="None", type="index", visible=False)
         self.inputs[0] = dropdown
 
         self.setup_ui_for_section(None, self.selectable_scripts)

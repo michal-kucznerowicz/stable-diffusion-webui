@@ -2,33 +2,33 @@ import datetime
 import mimetypes
 import os
 import sys
-from functools import reduce
 import warnings
 from contextlib import ExitStack
+from functools import reduce
 
 import gradio as gr
 import gradio.utils
 import numpy as np
 from PIL import Image, PngImagePlugin  # noqa: F401
-from modules.call_queue import wrap_gradio_gpu_call, wrap_queued_call, wrap_gradio_call
 
-from modules import gradio_extensons, sd_schedulers  # noqa: F401
-from modules import sd_hijack, sd_models, script_callbacks, ui_extensions, deepbooru, extra_networks, ui_common, ui_postprocessing, progress, ui_loadsave, shared_items, ui_settings, timer, sysinfo, ui_checkpoint_merger, scripts, sd_samplers, processing, ui_extra_networks, ui_toprow, launch_utils
-from modules.ui_components import FormRow, FormGroup, ToolButton, FormHTML, InputAccordion, ResizeHandleRow
-from modules.paths import script_path
-from modules.ui_common import create_refresh_button
-from modules.ui_gradio_extensions import reload_javascript
-
-from modules.shared import opts, cmd_opts
-
-import modules.infotext_utils as parameters_copypaste
 import modules.hypernetworks.ui as hypernetworks_ui
-import modules.textual_inversion.ui as textual_inversion_ui
-import modules.textual_inversion.textual_inversion as textual_inversion
+import modules.infotext_utils as parameters_copypaste
 import modules.shared as shared
+import modules.textual_inversion.textual_inversion as textual_inversion
+import modules.textual_inversion.ui as textual_inversion_ui
+from modules import gradio_extensons, sd_schedulers  # noqa: F401
 from modules import prompt_parser
+from modules import sd_hijack, sd_models, script_callbacks, ui_extensions, deepbooru, extra_networks, ui_common, \
+    ui_postprocessing, progress, ui_loadsave, shared_items, ui_settings, timer, sysinfo, ui_checkpoint_merger, scripts, \
+    processing, ui_extra_networks, ui_toprow, launch_utils
+from modules.call_queue import wrap_gradio_gpu_call, wrap_gradio_call
+from modules.infotext_utils import image_from_url_text
+from modules.paths import script_path
 from modules.sd_hijack import model_hijack
-from modules.infotext_utils import image_from_url_text, PasteField
+from modules.shared import opts, cmd_opts
+from modules.ui_common import create_refresh_button
+from modules.ui_components import FormRow, FormGroup, ToolButton, FormHTML, InputAccordion, ResizeHandleRow
+from modules.ui_gradio_extensions import reload_javascript
 
 create_setting_component = ui_settings.create_setting_component
 
@@ -287,36 +287,15 @@ def create_ui():
                             pass
 
                     elif category == "accordions":
-                        with gr.Row(elem_id="txt2img_accordions", elem_classes="accordions"):
+                        with gr.Row(elem_id="txt2img_accordions", elem_classes="accordions", visible=False):  # TODO
                             with InputAccordion(False, label="Hires. fix", elem_id="txt2img_hr") as enable_hr:
                                 with enable_hr.extra():
                                     hr_final_resolution = FormHTML(value="", elem_id="txtimg_hr_finalres", label="Upscaled resolution", interactive=False, min_width=0)
-
-                                with FormRow(elem_id="txt2img_hires_fix_row1", variant="compact"):
-                                    hr_upscaler = gr.Dropdown(label="Upscaler", elem_id="txt2img_hr_upscaler", choices=[*shared.latent_upscale_modes, *[x.name for x in shared.sd_upscalers]], value=shared.latent_upscale_default_mode)
-                                    hr_second_pass_steps = gr.Slider(minimum=0, maximum=150, step=1, label='Hires steps', value=0, elem_id="txt2img_hires_steps")
-                                    denoising_strength = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Denoising strength', value=0.7, elem_id="txt2img_denoising_strength")
 
                                 with FormRow(elem_id="txt2img_hires_fix_row2", variant="compact"):
                                     hr_scale = gr.Slider(minimum=1.0, maximum=4.0, step=0.05, label="Upscale by", value=2.0, elem_id="txt2img_hr_scale")
                                     hr_resize_x = gr.Slider(minimum=0, maximum=2048, step=8, label="Resize width to", value=0, elem_id="txt2img_hr_resize_x")
                                     hr_resize_y = gr.Slider(minimum=0, maximum=2048, step=8, label="Resize height to", value=0, elem_id="txt2img_hr_resize_y")
-
-                                with FormRow(elem_id="txt2img_hires_fix_row3", variant="compact", visible=opts.hires_fix_show_sampler) as hr_sampler_container:
-
-                                    hr_checkpoint_name = gr.Dropdown(label='Checkpoint', elem_id="hr_checkpoint", choices=["Use same checkpoint"] + modules.sd_models.checkpoint_tiles(use_short=True), value="Use same checkpoint")
-                                    create_refresh_button(hr_checkpoint_name, modules.sd_models.list_models, lambda: {"choices": ["Use same checkpoint"] + modules.sd_models.checkpoint_tiles(use_short=True)}, "hr_checkpoint_refresh")
-
-                                    hr_sampler_name = gr.Dropdown(label='Hires sampling method', elem_id="hr_sampler", choices=["Use same sampler"] + sd_samplers.visible_sampler_names(), value="Use same sampler")
-                                    hr_scheduler = gr.Dropdown(label='Hires schedule type', elem_id="hr_scheduler", choices=["Use same scheduler"] + [x.label for x in sd_schedulers.schedulers], value="Use same scheduler")
-
-                                with FormRow(elem_id="txt2img_hires_fix_row4", variant="compact", visible=opts.hires_fix_show_prompts) as hr_prompts_container:
-                                    with gr.Column(scale=80):
-                                        with gr.Row():
-                                            hr_prompt = gr.Textbox(label="Hires prompt", elem_id="hires_prompt", show_label=False, lines=3, placeholder="Prompt for hires fix pass.\nLeave empty to use the same prompt as in first pass.", elem_classes=["prompt"])
-                                    with gr.Column(scale=80):
-                                        with gr.Row():
-                                            hr_negative_prompt = gr.Textbox(label="Hires negative prompt", elem_id="hires_neg_prompt", show_label=False, lines=3, placeholder="Negative prompt for hires fix pass.\nLeave empty to use the same negative prompt as in first pass.", elem_classes=["prompt"])
 
                             scripts.scripts_txt2img.setup_ui_for_section(category)
 
@@ -358,17 +337,6 @@ def create_ui():
                 toprow.cities,
                 toprow.colors,
                 enable_hr,
-                denoising_strength,
-                hr_scale,
-                hr_upscaler,
-                hr_second_pass_steps,
-                hr_resize_x,
-                hr_resize_y,
-                hr_checkpoint_name,
-                hr_sampler_name,
-                hr_scheduler,
-                hr_prompt,
-                hr_negative_prompt,
                 override_settings,
             ] + custom_inputs
 
@@ -411,20 +379,6 @@ def create_ui():
             )
 
             txt2img_paste_fields = [
-                PasteField(denoising_strength, "Denoising strength", api="denoising_strength"),
-                PasteField(enable_hr, lambda d: "Denoising strength" in d and ("Hires upscale" in d or "Hires upscaler" in d or "Hires resize-1" in d), api="enable_hr"),
-                PasteField(hr_scale, "Hires upscale", api="hr_scale"),
-                PasteField(hr_upscaler, "Hires upscaler", api="hr_upscaler"),
-                PasteField(hr_second_pass_steps, "Hires steps", api="hr_second_pass_steps"),
-                PasteField(hr_resize_x, "Hires resize-1", api="hr_resize_x"),
-                PasteField(hr_resize_y, "Hires resize-2", api="hr_resize_y"),
-                PasteField(hr_checkpoint_name, "Hires checkpoint", api="hr_checkpoint_name"),
-                PasteField(hr_sampler_name, sd_samplers.get_hr_sampler_from_infotext, api="hr_sampler_name"),
-                PasteField(hr_scheduler, sd_samplers.get_hr_scheduler_from_infotext, api="hr_scheduler"),
-                PasteField(hr_sampler_container, lambda d: gr.update(visible=True) if d.get("Hires sampler", "Use same sampler") != "Use same sampler" or d.get("Hires checkpoint", "Use same checkpoint") != "Use same checkpoint" or d.get("Hires schedule type", "Use same scheduler") != "Use same scheduler" else gr.update()),
-                PasteField(hr_prompt, "Hires prompt", api="hr_prompt"),
-                PasteField(hr_negative_prompt, "Hires negative prompt", api="hr_negative_prompt"),
-                PasteField(hr_prompts_container, lambda d: gr.update(visible=True) if d.get("Hires prompt", "") != "" or d.get("Hires negative prompt", "") != "" else gr.update()),
                 *scripts.scripts_txt2img.infotext_fields
             ]
             parameters_copypaste.add_paste_fields("txt2img", None, txt2img_paste_fields, override_settings)

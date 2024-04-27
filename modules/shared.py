@@ -8,6 +8,8 @@ from modules.paths_internal import models_path, script_path, data_path, sd_confi
 from modules import util
 from typing import TYPE_CHECKING
 
+# TODO: add all parameters
+
 if TYPE_CHECKING:
     from modules import shared_state, styles, interrogate, shared_total_tqdm, memmon
 
