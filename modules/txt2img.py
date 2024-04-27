@@ -15,9 +15,9 @@ import gradio as gr
 def txt2img_create_processing(
         id_task: str,
         request: gr.Request,
-        countries,
-        cities,
-        colors,
+        tag_1,
+        tag_2,
+        tag_3,
         enable_hr: bool,
         override_settings_texts,
         *args,
@@ -29,9 +29,9 @@ def txt2img_create_processing(
         enable_hr = True
 
     prompt = (
-            tag_to_prompt(countries) +
-            tag_to_prompt(cities) +
-            tag_to_prompt(colors)
+            tag_to_prompt(tag_1) + ", " +
+            tag_to_prompt(tag_2) + ", " +
+            tag_to_prompt(tag_3)
     )
     prompt = re.sub(' +', ' ', prompt)
     print("Prompt: " + prompt)
@@ -75,7 +75,7 @@ def txt2img_create_processing(
 
 
 def tag_to_prompt(tag):
-    return ''.join([str(e) + " " for e in tag]) + " "
+    return ''.join([str(e) + " " for e in tag])
 
 
 def txt2img_upscale(id_task: str, request: gr.Request, gallery, gallery_index, generation_info, *args):

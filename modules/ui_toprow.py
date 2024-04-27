@@ -8,12 +8,12 @@ from modules.ui_prompt_tag import PromptTag
 class Toprow:
     """Creates a top row UI with prompts, generate button, styles, extra little buttons for things, and enables some functionality related to their operation"""
 
-    countries = None
-    countries_prompt_tag = PromptTag(label="Country", choices=["USA", "Japan", "Poland"])
-    cities = None
-    cities_prompt_tag = PromptTag(label="City", choices=["New York", "Tokyo", "Warsaw"])
-    colors = None
-    colors_prompt_tag = PromptTag(label="Color", choices=["Red", "Green", "Blue"])
+    base = None
+    base_prompt_tag = PromptTag(label="Base", choices=["woman", "man"])
+    number_of_people = None
+    number_of_people_prompt_tag = PromptTag(label="Number of people", choices=["one", "two", "several"])
+    body = None
+    body_prompt_tag = PromptTag(label="Body", choices=["skinny", "slim", "chubby", "fat"])
 
     button_interrogate = None
     button_deepbooru = None
@@ -69,17 +69,17 @@ class Toprow:
         with gr.Column(elem_id=f"{self.id_part}_prompt_container", elem_classes=["prompt-container-compact"] if self.is_compact else [], scale=6):
             with gr.Row():
                 with gr.Column():
-                    self.countries = gr.CheckboxGroup(
-                        label=self.countries_prompt_tag.label,
-                        choices=self.countries_prompt_tag.choices,
+                    self.base = gr.CheckboxGroup(
+                        label=self.base_prompt_tag.label,
+                        choices=self.base_prompt_tag.choices,
                     )
-                    self.cities = gr.CheckboxGroup(
-                        label=self.cities_prompt_tag.label,
-                        choices=self.cities_prompt_tag.choices,
+                    self.number_of_people = gr.CheckboxGroup(
+                        label=self.number_of_people_prompt_tag.label,
+                        choices=self.number_of_people_prompt_tag.choices,
                     )
-                    self.colors = gr.CheckboxGroup(
-                        label=self.colors_prompt_tag.label,
-                        choices=self.colors_prompt_tag.choices,
+                    self.body = gr.CheckboxGroup(
+                        label=self.body_prompt_tag.label,
+                        choices=self.body_prompt_tag.choices,
                     )
 
     def create_submit_box(self):

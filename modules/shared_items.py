@@ -90,7 +90,7 @@ def get_infotext_names():
     return list(res)
 
 
-ui_reorder_categories_builtin_items = [
+ui_reorder_categories_builtin_items = [  # TODO
     "prompt",
     "image",
     "inpaint",
