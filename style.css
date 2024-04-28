@@ -296,8 +296,8 @@ input[type="checkbox"].input-accordion-checkbox{
     font-weight: bold;
 }
 
-#txt2img_generate, #img2img_generate {
-    min-height: 4.5em;
+#txt2img_generate, #img2img_generate, #txt2img_interrupt, #img2img_interrupt, #txt2img_interrupting, #img2img_interrupting {
+    height: 2.5em;
     border-radius: 0.5rem;
     margin-top: 0.5rem;
 }
@@ -546,16 +546,15 @@ table.popup-table .link{
     padding: 1em;
 }
 
-
 /* live preview */
-.progressDiv{
-    position: absolute;
-    height: 20px;
+.progressDiv {
+    height: 2.5rem;
+    line-height: 2.5rem;
     background: #b4c0cc;
-    border-radius: 3px !important;
-    top: -14px;
+    border-radius: 0.5rem !important;
     left: 0px;
     width: 100%;
+    margin-bottom: 0.5rem;
 }
 
 .progress-container{
@@ -570,16 +569,16 @@ table.popup-table .link{
     background: #424c5b;
 }
 
-.progressDiv .progress{
+.progressDiv .progress {
     width: 0%;
-    height: 20px;
+    height: 2.5rem;
+    line-height: 2.5rem;
     background: #0060df;
     color: white;
     font-weight: bold;
-    line-height: 20px;
     padding: 0 8px 0 0;
     text-align: right;
-    border-radius: 3px;
+    border-radius: 0.5rem;
     overflow: visible;
     white-space: nowrap;
     padding: 0 0.5em;
