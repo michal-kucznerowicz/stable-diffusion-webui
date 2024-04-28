@@ -119,18 +119,17 @@ function create_submit_args(args) {
     return res;
 }
 
-function setSubmitButtonsVisibility(tabname, showInterrupt, showSkip, showInterrupting) {
+function setSubmitButtonsVisibility(tabname, showInterrupt, showInterrupting) {
     gradioApp().getElementById(tabname + '_interrupt').style.display = showInterrupt ? "block" : "none";
-    gradioApp().getElementById(tabname + '_skip').style.display = showSkip ? "block" : "none";
     gradioApp().getElementById(tabname + '_interrupting').style.display = showInterrupting ? "block" : "none";
 }
 
 function showSubmitButtons(tabname, show) {
-    setSubmitButtonsVisibility(tabname, !show, !show, false);
+    setSubmitButtonsVisibility(tabname, !show, false);
 }
 
 function showSubmitInterruptingPlaceholder(tabname) {
-    setSubmitButtonsVisibility(tabname, false, true, true);
+    setSubmitButtonsVisibility(tabname, false, true);
 }
 
 function showRestoreProgressButton(tabname, show) {

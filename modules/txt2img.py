@@ -1,36 +1,36 @@
 import json
-import re
 from contextlib import closing
 
+import gradio as gr
+from PIL import Image
+
 import modules.scripts
+import modules.shared as shared
 from modules import processing, infotext_utils
 from modules.infotext_utils import create_override_settings_dict, parse_generation_parameters
 from modules.shared import opts
-import modules.shared as shared
 from modules.ui import plaintext_to_html
-from PIL import Image
-import gradio as gr
 
 
 def txt2img_create_processing(
         id_task: str,
         request: gr.Request,
-        tag_1,
-        tag_2,
-        tag_3,
-        tag_4,
-        tag_5,
-        tag_6,
-        tag_7,
-        tag_8,
-        tag_9,
-        tag_10,
-        tag_11,
-        tag_12,
-        tag_13,
-        tag_14,
-        tag_15,
-        tag_16,
+        base,
+        number_of_people,
+        body,
+        age,
+        face,
+        hair_color,
+        hair_style,
+        ethnicity,
+        style,
+        setting,
+        view,
+        action,
+        clothing,
+        clothing_modifiers,
+        accessories,
+        effects,
         enable_hr: bool,
         override_settings_texts,
         *args,
@@ -42,25 +42,32 @@ def txt2img_create_processing(
         enable_hr = True
 
     prompt = (
-            tag_to_prompt(tag_1) + " " +
-            tag_to_prompt(tag_2) + " " +
-            tag_to_prompt(tag_3) + " " +
-            tag_to_prompt(tag_4) + " " +
-            tag_to_prompt(tag_5) + " " +
-            tag_to_prompt(tag_6) + " " +
-            tag_to_prompt(tag_7) + " " +
-            tag_to_prompt(tag_8) + " " +
-            tag_to_prompt(tag_9) + " " +
-            tag_to_prompt(tag_10) + " " +
-            tag_to_prompt(tag_11) + " " +
-            tag_to_prompt(tag_12) + " " +
-            tag_to_prompt(tag_13) + " " +
-            tag_to_prompt(tag_14) + " " +
-            tag_to_prompt(tag_15) + " " +
-            tag_to_prompt(tag_16)
+            tag_to_prompt(base) +
+            tag_to_prompt(number_of_people) +
+            tag_to_prompt(body) +
+            tag_to_prompt(age) +
+            tag_to_prompt(face) +
+            tag_to_prompt(hair_color) +
+            tag_to_prompt(hair_style) +
+            tag_to_prompt(ethnicity) +
+            tag_to_prompt(style) +
+            tag_to_prompt(setting) +
+            tag_to_prompt(view) +
+            tag_to_prompt(action) +
+            tag_to_prompt(clothing) +
+            tag_to_prompt(clothing_modifiers) +
+            tag_to_prompt(accessories) +
+            tag_to_prompt(effects)
     )
-    prompt = re.sub(' +', ' ', prompt)
-    print("Prompt: " + prompt)  # TODO
+    prompt = f"""{prompt}"""
+    prompt = prompt[:-2]
+    print("Prompt: " + prompt)
+
+    negative_prompt = """deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, text, cropped, out of frame, worst quality, low quality, 
+    jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, 
+    bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, 
+    long neck"""
+    print("Negative prompt: " + negative_prompt)
 
     p = processing.StableDiffusionProcessingTxt2Img(
         sd_model=shared.sd_model,
@@ -68,14 +75,14 @@ def txt2img_create_processing(
         outpath_grids=opts.outdir_grids or opts.outdir_txt2img_grids,
         prompt=prompt,
         styles=[],
-        negative_prompt="",
+        negative_prompt=negative_prompt,
         batch_size=1,
         n_iter=1,
         cfg_scale=7.0,
         width=512,
         height=512,
         enable_hr=enable_hr,
-        denoising_strength=0.7,
+        denoising_strength=0.35,
         hr_scale=2.0,
         hr_upscaler="Latent",
         hr_second_pass_steps=0,
@@ -101,7 +108,11 @@ def txt2img_create_processing(
 
 
 def tag_to_prompt(tag):
-    return ''.join([str(e) + " " for e in tag])
+    prompt = ''.join([str(e) + " " for e in tag])
+    if prompt != "":
+        prompt = prompt[:-1]
+        prompt += ", "
+    return prompt
 
 
 def txt2img_upscale(id_task: str, request: gr.Request, gallery, gallery_index, generation_info, *args):
