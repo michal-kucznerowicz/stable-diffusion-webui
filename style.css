@@ -298,11 +298,10 @@ input[type="checkbox"].input-accordion-checkbox{
 
 #txt2img_generate, #img2img_generate {
     min-height: 4.5em;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
 }
 
-#txt2img_generate, #img2img_generate {
-    min-height: 4.5em;
-}
 .generate-box-compact #txt2img_generate, .generate-box-compact #img2img_generate {
     min-height: 3em;
 }
@@ -384,6 +383,10 @@ div#extras_scale_to_tab div.form{
     resize: auto;
     background: var(--panel-background-fill);
     z-index: 5;
+}
+
+.image-buttons {
+    margin-top: 0.5rem;
 }
 
 .image-buttons > .form{
@@ -1156,7 +1159,7 @@ div.accordions > div.input-accordion.input-accordion-open{
 
 /* sticky right hand columns */
 
-#img2img_results, #txt2img_results, #extras_results {
+#img2img_sticky_actions, #txt2img_sticky_actions, #extras_sticky_actions {
     position: sticky;
     top: 0.5em;
 }

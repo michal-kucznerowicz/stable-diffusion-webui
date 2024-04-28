@@ -82,7 +82,7 @@ def txt2img_create_processing(
         width=512,
         height=512,
         enable_hr=enable_hr,
-        denoising_strength=0.35,
+        denoising_strength=0.7,
         hr_scale=2.0,
         hr_upscaler="Latent",
         hr_second_pass_steps=0,

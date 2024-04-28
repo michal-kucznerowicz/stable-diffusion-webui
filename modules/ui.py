@@ -220,8 +220,8 @@ def apply_setting(key, value):
     return getattr(opts, key)
 
 
-def create_output_panel(tabname, outdir, toprow=None):
-    return ui_common.create_output_panel(tabname, outdir, toprow)
+def create_output_panel(tabname, outdir):
+    return ui_common.create_output_panel(tabname, outdir)
 
 
 def ordered_ui_categories():
@@ -258,8 +258,8 @@ def create_ui():
     scripts.scripts_txt2img.initialize_scripts(is_img2img=False)
 
     with gr.Blocks(analytics_enabled=False) as txt2img_interface:
-        toprow = ui_toprow.Toprow(is_img2img=False, is_compact=shared.opts.compact_prompt_box)
-        output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
+        toprow = ui_toprow.Toprow(is_img2img=False)
+        output_panel = toprow.output_panel
 
         dummy_component = gr.Label(visible=False)
 
@@ -275,10 +275,7 @@ def create_ui():
                 scripts.scripts_txt2img.prepare_ui()
 
                 for category in ordered_ui_categories():
-                    if category == "prompt":
-                        toprow.create_inline_toprow_prompts()
-
-                    elif category == "accordions":
+                    if category == "accordions":
                         with gr.Row(elem_id="txt2img_accordions", elem_classes="accordions", visible=False):
                             with InputAccordion(False, label="Hires. fix", elem_id="txt2img_hr") as enable_hr:
                                 with enable_hr.extra():
@@ -403,7 +400,7 @@ def create_ui():
     scripts.scripts_img2img.initialize_scripts(is_img2img=True)
 
     with gr.Blocks(analytics_enabled=False) as img2img_interface:
-        toprow = ui_toprow.Toprow(is_img2img=True, is_compact=shared.opts.compact_prompt_box)
+        toprow = ui_toprow.Toprow(is_img2img=True)
 
         extra_tabs = gr.Tabs(elem_id="img2img_extra_tabs", elem_classes=["extra-networks"])
         extra_tabs.__enter__()
@@ -433,9 +430,6 @@ def create_ui():
                 scripts.scripts_img2img.prepare_ui()
 
                 for category in ordered_ui_categories():
-                    if category == "prompt":
-                        toprow.create_inline_toprow_prompts()
-
                     if category == "image":
                         with gr.Tabs(elem_id="mode_img2img"):
                             img2img_selected_tab = gr.Number(value=0, visible=False)
@@ -623,7 +617,7 @@ def create_ui():
                     outputs=[inpaint_controls, mask_alpha],
                 )
 
-            output_panel = create_output_panel("img2img", opts.outdir_img2img_samples, toprow)
+            output_panel = create_output_panel("img2img", opts.outdir_img2img_samples)
 
             img2img_args = dict(
                 fn=wrap_gradio_gpu_call(modules.img2img.img2img, extra_outputs=[None, '', '']),
