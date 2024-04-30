@@ -1649,3 +1649,13 @@ body.resizing .resize-handle {
     visibility: visible;
     width: auto;
 }
+
+.prompt-tag > span {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.prompt-tag > * > * {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}

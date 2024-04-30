@@ -8,7 +8,18 @@ from modules.paths_internal import models_path, script_path, data_path, sd_confi
 from modules import util
 from typing import TYPE_CHECKING
 
-# TODO: add all parameters
+generation_steps = 20
+generation_batch_size = 1
+generation_n_iter = 1
+generation_cfg_scale = 7.0
+generation_width = 512
+generation_height = 512
+generation_denoising_strength = 0.7
+generation_hr_scale = 2.0
+generation_hr_upscaler = "Latent"
+generation_hr_second_pass_steps = 0
+generation_hr_resize_x = 0
+generation_hr_resize_y = 0
 
 if TYPE_CHECKING:
     from modules import shared_state, styles, interrogate, shared_total_tqdm, memmon
