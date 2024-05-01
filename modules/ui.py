@@ -256,15 +256,8 @@ def create_ui():
 
         dummy_component = gr.Label(visible=False)
 
-        extra_tabs = gr.Tabs(elem_id="txt2img_extra_tabs", elem_classes=["extra-networks"])
-        extra_tabs.__enter__()
-
-        with gr.Tab("Generation", id="txt2img_generation") as txt2img_generation_tab, ResizeHandleRow(equal_height=False):
-            with ExitStack() as stack:
-                if shared.opts.txt2img_settings_accordion:
-                    stack.enter_context(gr.Accordion("Open for Settings", open=False))
-                stack.enter_context(gr.Column(variant='compact', elem_id="txt2img_settings"))
-
+        with gr.Tabs(visible=False):
+            with gr.Tab("Generation", id="txt2img_generation"):
                 scripts.scripts_txt2img.prepare_ui()
 
                 for category in ordered_ui_categories():
@@ -292,94 +285,89 @@ def create_ui():
                     if category not in {"accordions"}:
                         scripts.scripts_txt2img.setup_ui_for_section(category)
 
-            hr_resolution_preview_inputs = [enable_hr, hr_scale, hr_resize_x, hr_resize_y]
+                hr_resolution_preview_inputs = [enable_hr, hr_scale, hr_resize_x, hr_resize_y]
 
-            for component in hr_resolution_preview_inputs:
-                event = component.release if isinstance(component, gr.Slider) else component.change
+                for component in hr_resolution_preview_inputs:
+                    event = component.release if isinstance(component, gr.Slider) else component.change
 
-                event(
-                    fn=calc_resolution_hires,
-                    inputs=hr_resolution_preview_inputs,
-                    outputs=[hr_final_resolution],
-                    show_progress=False,
-                )
-                event(
-                    None,
-                    _js="onCalcResolutionHires",
-                    inputs=hr_resolution_preview_inputs,
-                    outputs=[],
-                    show_progress=False,
-                )
+                    event(
+                        fn=calc_resolution_hires,
+                        inputs=hr_resolution_preview_inputs,
+                        outputs=[hr_final_resolution],
+                        show_progress=False,
+                    )
+                    event(
+                        None,
+                        _js="onCalcResolutionHires",
+                        inputs=hr_resolution_preview_inputs,
+                        outputs=[],
+                        show_progress=False,
+                    )
 
-            txt2img_inputs = [
-                dummy_component,
-                toprow.base,
-                toprow.number_of_people,
-                toprow.body,
-                toprow.age,
-                toprow.face,
-                toprow.hair_color,
-                toprow.hair_style,
-                toprow.ethnicity,
-                toprow.style,
-                toprow.setting,
-                toprow.view,
-                toprow.action,
-                toprow.clothing,
-                toprow.clothing_modifiers,
-                toprow.accessories,
-                toprow.effects,
-                enable_hr,
-                override_settings,
-            ] + custom_inputs
+        txt2img_inputs = [
+            dummy_component,
+            toprow.base,
+            toprow.number_of_people,
+            toprow.body,
+            toprow.age,
+            toprow.face,
+            toprow.hair_color,
+            toprow.hair_style,
+            toprow.ethnicity,
+            toprow.style,
+            toprow.setting,
+            toprow.view,
+            toprow.action,
+            toprow.clothing,
+            toprow.clothing_modifiers,
+            toprow.accessories,
+            toprow.effects,
+            enable_hr,
+            override_settings,
+        ] + custom_inputs
 
-            txt2img_outputs = [
+        txt2img_outputs = [
+            output_panel.gallery,
+            output_panel.generation_info,
+            output_panel.infotext,
+            output_panel.html_log,
+        ]
+
+        txt2img_args = dict(
+            fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
+            _js="submit",
+            inputs=txt2img_inputs,
+            outputs=txt2img_outputs,
+            show_progress=False,
+        )
+
+        toprow.submit.click(**txt2img_args)
+
+        output_panel.button_upscale.click(
+            fn=wrap_gradio_gpu_call(modules.txt2img.txt2img_upscale, extra_outputs=[None, '', '']),
+            _js="submit_txt2img_upscale",
+            inputs=txt2img_inputs[0:1] + [output_panel.gallery, dummy_component, output_panel.generation_info] + txt2img_inputs[1:],
+            outputs=txt2img_outputs,
+            show_progress=False,
+        )
+
+        toprow.restore_progress_button.click(
+            fn=progress.restore_progress,
+            _js="restoreProgressTxt2img",
+            inputs=[dummy_component],
+            outputs=[
                 output_panel.gallery,
                 output_panel.generation_info,
                 output_panel.infotext,
                 output_panel.html_log,
-            ]
+            ],
+            show_progress=False,
+        )
 
-            txt2img_args = dict(
-                fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
-                _js="submit",
-                inputs=txt2img_inputs,
-                outputs=txt2img_outputs,
-                show_progress=False,
-            )
-
-            toprow.submit.click(**txt2img_args)
-
-            output_panel.button_upscale.click(
-                fn=wrap_gradio_gpu_call(modules.txt2img.txt2img_upscale, extra_outputs=[None, '', '']),
-                _js="submit_txt2img_upscale",
-                inputs=txt2img_inputs[0:1] + [output_panel.gallery, dummy_component, output_panel.generation_info] + txt2img_inputs[1:],
-                outputs=txt2img_outputs,
-                show_progress=False,
-            )
-
-            toprow.restore_progress_button.click(
-                fn=progress.restore_progress,
-                _js="restoreProgressTxt2img",
-                inputs=[dummy_component],
-                outputs=[
-                    output_panel.gallery,
-                    output_panel.generation_info,
-                    output_panel.infotext,
-                    output_panel.html_log,
-                ],
-                show_progress=False,
-            )
-
-            txt2img_paste_fields = [
-                *scripts.scripts_txt2img.infotext_fields
-            ]
-            parameters_copypaste.add_paste_fields("txt2img", None, txt2img_paste_fields, override_settings)
-
-        extra_networks_ui = ui_extra_networks.create_ui(txt2img_interface, [txt2img_generation_tab], 'txt2img')
-        ui_extra_networks.setup_ui(extra_networks_ui, output_panel.gallery)
-
-        extra_tabs.__exit__()
+        txt2img_paste_fields = [
+            *scripts.scripts_txt2img.infotext_fields
+        ]
+        parameters_copypaste.add_paste_fields("txt2img", None, txt2img_paste_fields, override_settings)
 
     scripts.scripts_current = scripts.scripts_img2img
     scripts.scripts_img2img.initialize_scripts(is_img2img=True)
