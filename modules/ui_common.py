@@ -179,20 +179,19 @@ def create_output_panel(tabname, outdir):
         res.gallery = gr.Gallery(label='Output', show_label=False, elem_id=f"{tabname}_gallery", columns=4, preview=True, height=shared.opts.gallery_height or None)
 
     with gr.Row(elem_id=f"image_buttons_{tabname}", elem_classes="image-buttons"):
-        open_folder_button = ToolButton(folder_symbol, elem_id=f'{tabname}_open_folder', visible=not shared.cmd_opts.hide_ui_dir_config, tooltip="Open images output directory.")
+        open_folder_button = gr.Button("Open images output directory", elem_id=f'{tabname}_open_folder', visible=not shared.cmd_opts.hide_ui_dir_config)
 
         if tabname != "extras":
-            save = ToolButton('💾', elem_id=f'save_{tabname}', tooltip=f"Save the image to a dedicated directory ({shared.opts.outdir_save}).")
-            save_zip = ToolButton('🗃️', elem_id=f'save_zip_{tabname}', tooltip=f"Save zip archive with images to a dedicated directory ({shared.opts.outdir_save})")
+            save = gr.Button("Save the image", elem_id=f'save_{tabname}')
+            save_zip = gr.Button("Save zip archive with images", elem_id=f'save_zip_{tabname}')
 
         buttons = {
-            'img2img': ToolButton('🖼️', elem_id=f'{tabname}_send_to_img2img', tooltip="Send image and generation parameters to img2img tab."),
-            'inpaint': ToolButton('🎨️', elem_id=f'{tabname}_send_to_inpaint', tooltip="Send image and generation parameters to img2img inpaint tab."),
-            'extras': ToolButton('📐', elem_id=f'{tabname}_send_to_extras', tooltip="Send image and generation parameters to extras tab.")
+            'img2img': gr.Button("Send image to img2img tab", elem_id=f'{tabname}_send_to_img2img'),
+            'inpaint': gr.Button("Send image to img2img inpaint tab", elem_id=f'{tabname}_send_to_inpaint'),
         }
 
         if tabname == 'txt2img':
-            res.button_upscale = ToolButton('✨', elem_id=f'{tabname}_upscale', tooltip="Create an upscaled version of the current image using hires fix settings.")
+            res.button_upscale = gr.Button("Upscale", elem_id=f'{tabname}_upscale')
 
     open_folder_button.click(
         fn=lambda images, index: open_folder(shared.opts.outdir_samples or outdir, images, index),

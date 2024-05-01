@@ -9,7 +9,7 @@ class FormComponent:
 gr.Dropdown.get_expected_parent = FormComponent.get_expected_parent
 
 
-class ToolButton(FormComponent, gr.Button):
+class ToolButton(FormComponent, gr.Button):  # TODO
     """Small button with single emoji as text, fits inside gradio forms"""
 
     def __init__(self, *args, **kwargs):
