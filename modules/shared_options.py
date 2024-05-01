@@ -6,6 +6,7 @@ from modules.paths_internal import models_path, script_path, data_path, sd_confi
 from modules.shared_cmd_options import cmd_opts
 from modules.options import options_section, OptionInfo, OptionHTML, categories
 
+# TODO: review file
 options_templates = {}
 hide_dirs = shared.hide_dirs
 

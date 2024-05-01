@@ -14,10 +14,9 @@ import modules.infotext_utils as parameters_copypaste
 import modules.shared as shared
 from modules import gradio_extensons, sd_schedulers  # noqa: F401
 from modules import prompt_parser
-from modules import sd_models, script_callbacks, deepbooru, extra_networks, ui_common, \
-    ui_postprocessing, progress, ui_loadsave, shared_items, ui_settings, timer, sysinfo, scripts, \
-    processing, ui_extra_networks, ui_toprow, launch_utils
-from modules.call_queue import wrap_gradio_gpu_call, wrap_gradio_call
+from modules import sd_models, script_callbacks, deepbooru, extra_networks, ui_common, ui_postprocessing, progress, ui_loadsave, shared_items, ui_settings, timer, sysinfo, \
+    scripts, processing, ui_extra_networks, ui_toprow, launch_utils
+from modules.call_queue import wrap_gradio_gpu_call
 from modules.infotext_utils import image_from_url_text
 from modules.paths import script_path
 from modules.sd_hijack import model_hijack
@@ -71,7 +70,6 @@ extra_networks_symbol = '\U0001F3B4'  # 🎴
 switch_values_symbol = '\U000021C5'  # ⇅
 restore_progress_symbol = '\U0001F300'  # 🌀
 detect_image_size_symbol = '\U0001F4D0'  # 📐
-
 
 plaintext_to_html = ui_common.plaintext_to_html
 
@@ -180,10 +178,6 @@ def update_token_counter(text, steps, styles, *, is_positive=True):
 
 def update_negative_prompt_token_counter(*args):
     return update_token_counter(*args, is_positive=False)
-
-
-def setup_progressbar(*args, **kwargs):
-    pass
 
 
 def apply_setting(key, value):
@@ -381,14 +375,6 @@ def create_ui():
                 *scripts.scripts_txt2img.infotext_fields
             ]
             parameters_copypaste.add_paste_fields("txt2img", None, txt2img_paste_fields, override_settings)
-
-            steps = scripts.scripts_txt2img.script('Sampler').steps
-
-            txt2img_preview_params = [
-                steps,
-                scripts.scripts_txt2img.script('Sampler').sampler_name,
-                scripts.scripts_txt2img.script('Seed').seed,
-            ]
 
         extra_networks_ui = ui_extra_networks.create_ui(txt2img_interface, [txt2img_generation_tab], 'txt2img')
         ui_extra_networks.setup_ui(extra_networks_ui, output_panel.gallery)
@@ -624,9 +610,6 @@ def create_ui():
                 inputs=[
                     dummy_component,
                     dummy_component,
-                    # toprow.prompt,
-                    # toprow.negative_prompt,
-                    # toprow.ui_styles.dropdown,
                     init_img,
                     sketch,
                     init_img_with_mask,
@@ -682,7 +665,6 @@ def create_ui():
                 outputs=[dummy_component, dummy_component],
             )
 
-            # toprow.prompt.submit(**img2img_args)
             toprow.submit.click(**img2img_args)
 
             res_switch_btn.click(fn=None, _js="function(){switchWidthHeight('img2img')}", inputs=None, outputs=None, show_progress=False)
@@ -718,22 +700,12 @@ def create_ui():
                 **interrogate_args,
             )
 
-            steps = scripts.scripts_img2img.script('Sampler').steps
-
-            # toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_token_counter), inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
-            # toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
-            # toprow.token_button.click(fn=update_token_counter, inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
-            # toprow.negative_token_button.click(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
-
             img2img_paste_fields = [
-                # (toprow.prompt, "Prompt"),
-                # (toprow.negative_prompt, "Negative prompt"),
                 (cfg_scale, "CFG scale"),
                 (image_cfg_scale, "Image CFG scale"),
                 (width, "Size-1"),
                 (height, "Size-2"),
                 (batch_size, "Batch size"),
-                # (toprow.ui_styles.dropdown, lambda d: d["Styles array"] if isinstance(d.get("Styles array"), list) else gr.update()),
                 (denoising_strength, "Denoising strength"),
                 (mask_blur, "Mask blur"),
                 (inpainting_mask_invert, 'Mask mode'),
@@ -744,9 +716,6 @@ def create_ui():
             ]
             parameters_copypaste.add_paste_fields("img2img", init_img, img2img_paste_fields, override_settings)
             parameters_copypaste.add_paste_fields("inpaint", init_img_with_mask, img2img_paste_fields, override_settings)
-            # parameters_copypaste.register_paste_params_button(parameters_copypaste.ParamBinding(
-            #     paste_button=toprow.paste, tabname="img2img", source_text_component=toprow.prompt, source_image_component=None,
-            # ))
 
         extra_networks_ui_img2img = ui_extra_networks.create_ui(img2img_interface, [img2img_generation_tab], 'img2img')
         ui_extra_networks.setup_ui(extra_networks_ui_img2img, output_panel.gallery)
@@ -755,7 +724,7 @@ def create_ui():
 
     scripts.scripts_current = None
 
-    with gr.Blocks(analytics_enabled=False) as extras_interface:
+    with gr.Blocks(analytics_enabled=False):
         ui_postprocessing.create_ui()
 
     loadsave = ui_loadsave.UiLoadsave(cmd_opts.ui_config_file)
@@ -766,7 +735,6 @@ def create_ui():
     interfaces = [
         (txt2img_interface, "txt2img", "txt2img"),
         (img2img_interface, "img2img", "img2img"),
-        (extras_interface, "Extras", "extras"),  # TODO
     ]
 
     interfaces += script_callbacks.ui_tabs_callback()
